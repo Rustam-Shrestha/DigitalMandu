@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: [true, "password is required"] },
     email: { type: String, required: [true, "email is required"] },
     role: { type: String, enum: ['customer', 'admin'], required: [true, "role is required"], default: "customer" },
+    otp: { type: Number},
 });
 
 // create model named User which is in side param assigns it the model we created above

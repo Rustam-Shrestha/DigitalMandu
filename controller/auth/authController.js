@@ -6,6 +6,7 @@ const webtoken = require('jsonwebtoken');
 
 // Import the User model
 const User = require("../../models/userModel");
+const sendEmail = require('../../services/sendEmail');
 
 
 
@@ -92,9 +93,9 @@ exports.loginUser = async (req, res) => {
                     { expiresIn: '1h', algorithm: 'HS256' } // HS256 is default, but specifying it is safer
                 );
                 console.log("after sign")
-                res.status(200).json({ 
+                res.status(200).json({
                     message: "Login successful",
-                    token: token 
+                    token: token
                 });
             } else {
                 res.status(401).json({ message: "Invalid password" });
@@ -105,3 +106,39 @@ exports.loginUser = async (req, res) => {
         res.status(500).json({ message: "Error in database" });
     }
 }
+
+
+
+// forgot password feature implementation
+exports.forgotPassword = async (req, res) => {
+    const { userEmail } = req.body;
+    if (!userEmail) {
+        // returning 400 status message for requesting user to give email
+        return res.status(400).json({
+            message: "Please enter your email to reset password"
+        });
+    }
+
+    // checking if user email given is available in database 
+    const emailExists = await User.findOne({ email: userEmail });
+    if (!emailExists) {
+        // returning 404 status message for user not found
+        return res.status(404).json({
+            message: "User not found"
+        });
+    } else { 
+        // creating otp with 4 digits 
+        const otpUser = Math.floor(1000 + Math.random() * 9000);
+        // as we give user the OTP we save it to verify them by storing them in db
+        emailExists.otp = otpUser;
+        await emailExists.save()
+        await sendEmail({
+            userEmail: userEmail,
+            emailSubject: "Password Reset OTP for Digital Mandu",
+            emailMessage: `Your OTP for password reset is ${otpUser}`,
+        });
+        return res.json({
+            message: "Successfully sent message"
+        });
+    }
+};
