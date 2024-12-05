@@ -171,10 +171,19 @@ exports.verifyOTP = async (req, res) => {
         });
     } else {
         // OTP is correct
-        return res.status(200).json({
-            message: "OTP is correct!"
-        });
+        // Reset OTP to undefined in the database for one-time usage
+        user.otp = undefined;
+    
+        // Mark the user as verified
+        user.isOtpVerified = true;
+    
+        // Save the updated user object
+        await user.save();
+    
+        // Respond with success
+        return res.status(200).json({ message: "OTP is correct!" });
     }
+    
 }
 
 // resetting the pasword afterforgeting in this endpoint we hit then we changet 
@@ -215,9 +224,15 @@ exports.resetPassword = async (req, res) => {
                 message: "New password cannot be the same as old password"
             });
         }
-
+        if (user.isOtpVerified !== true) {
+            // if user trying to verify again or trying to access unethical way
+            // show error
+            return res.status(403).json({ message: "You cannot perform this action" });
+        }
         // updating the user password with the new password
         user.password = hx.hashSync(newUserPassword, 10);
+        // turn off the otp before saving  thae updated
+        user.isOtpVerified = false;
         await user.save();
 
         // sending success response
