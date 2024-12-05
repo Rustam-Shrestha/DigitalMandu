@@ -126,7 +126,7 @@ exports.forgotPassword = async (req, res) => {
         return res.status(404).json({
             message: "User not found"
         });
-    } else { 
+    } else {
         // creating otp with 4 digits 
         const otpUser = Math.floor(1000 + Math.random() * 9000);
         // as we give user the OTP we save it to verify them by storing them in db
@@ -139,6 +139,95 @@ exports.forgotPassword = async (req, res) => {
         });
         return res.json({
             message: "Successfully sent message"
+        });
+    }
+};
+
+
+// verify user Given and system sent OTP 
+exports.verifyOTP = async (req, res) => {
+    // taking email and otp from user input
+    const { userEmail, otpUser } = req.body;
+
+    // checking if otp and email is not null, if null send status code 400
+    if (!userEmail || !otpUser) {
+        return res.status(400).json({
+            message: "Please enter your email and OTP to verify"
+        });
+    }
+
+    // finding the user with the given email in the db
+    const user = await User.findOne({ email: userEmail });
+
+    if (!user) {
+        // invalid message in case of unidentified email
+        return res.status(400).json({
+            message: "No account with that email"
+        });
+    } else if (user.otp !== otpUser) {
+        // returning 400 status message for invalid OTP
+        return res.status(400).json({
+            message: "Invalid OTP"
+        });
+    } else {
+        // OTP is correct
+        return res.status(200).json({
+            message: "OTP is correct!"
+        });
+    }
+}
+
+// resetting the pasword afterforgeting in this endpoint we hit then we changet 
+// the current password with user given passwword by using the otp verification from 
+//avobe
+exports.resetPassword = async (req, res) => {
+    try {
+        // taking email and new password from user input
+        const { userEmail, newUserPassword, confirmUserPassword } = req.body;
+
+        // checking if userEmail, newUserPassword, and confirmUserPassword are not null
+        if (!userEmail || !newUserPassword || !confirmUserPassword) {
+            return res.status(400).json({
+                message: "Enter details in the field"
+            });
+        }
+
+        // finding the user with the given email in the db
+        const user = await User.findOne({ email: userEmail });
+
+        if (!user) {
+            return res.status(400).json({
+                message: "No account with that email"
+            });
+        }
+
+        // checking if new password is confirmed
+        if (confirmUserPassword !== newUserPassword) {
+            return res.status(400).json({
+                message: "Please confirm your password by entering the new password twice"
+            });
+        }
+
+        // checking if new password is not equal to old password (use password comparison logic)
+        const isSamePassword = hx.compareSync(newUserPassword, user.password); // Compare hashed password
+        if (isSamePassword) {
+            return res.status(400).json({
+                message: "New password cannot be the same as old password"
+            });
+        }
+
+        // updating the user password with the new password
+        user.password = hx.hashSync(newUserPassword, 10);
+        await user.save();
+
+        // sending success response
+        return res.status(200).json({
+            message: "Password reset successfully"
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "An error occurred. Please try again later."
         });
     }
 };
