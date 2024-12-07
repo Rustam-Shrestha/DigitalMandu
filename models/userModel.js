@@ -4,11 +4,14 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
     name: { type: String, required: [true, "name is required"] },
     phone: { type: String, required: [true, "number is required"] },
-    password: { type: String, required: [true, "password is required"] },
+    password: { type: String, required: [true, "password is required"] , unique:true},
     email: { type: String, required: [true, "email is required"] },
     role: { type: String, enum: ['customer', 'admin'], required: [true, "role is required"], default: "customer" },
     otp: { type: Number},
     isOtpVerified: { type: Boolean, default:false},
+},{
+    // enabling mongodb to use new data called timespants
+    timestamps:true,
 });
 
 // create model named User which is in side param assigns it the model we created above

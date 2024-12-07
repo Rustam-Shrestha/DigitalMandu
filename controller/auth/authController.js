@@ -90,7 +90,7 @@ exports.loginUser = async (req, res) => {
                 const token = webtoken.sign(
                     { id: user._id.toString() },
                     process.env.SECRET_KEY,
-                    { expiresIn: '1h', algorithm: 'HS256' } // HS256 is default, but specifying it is safer
+                    { expiresIn: '8d', algorithm: 'HS256' } // HS256 is default, but specifying it is safer
                 );
                 console.log("after sign")
                 res.status(200).json({

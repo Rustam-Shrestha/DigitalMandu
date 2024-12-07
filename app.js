@@ -19,11 +19,13 @@ connectDatabase(process.env.Mongo_URI);
 
 //importing the authRoute.js in this file to work with routes
 const auth_routes = require("./routes/authRoute");
+const product_routes = require("./routes/productRoute");
 
 // using the routes we added for the auth routes
 // the "/" denotes that there are no subfolders for the route 
 // we can leave it "" only it will work
-app.use("/",auth_routes)
+app.use("/api",auth_routes)
+app.use("/api",product_routes)
 
 // Test API
 app.get("/", (req, res) => {
