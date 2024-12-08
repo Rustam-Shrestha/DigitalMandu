@@ -6,6 +6,7 @@ const productSchema = new mongoose.Schema({
     productStock: { type: Number, required: [true, "product stock is required"] },
     productPrice: { type: Number, required: [true, "product price is required"] },
     productStatus: { type: String, enum: ['draft', 'public'], required: [true, "draft is required"], default: "draft" },
+    productImage: { type: String,required: [true, "image is required"], default: "drafthttps://artists.spotify.com/songwriter/3IMp1zKhmOEmva4eNPGZKf" },
 },{
     // enabling mongodb to use new data called timespants
     timestamps:true,

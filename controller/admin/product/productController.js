@@ -1,6 +1,16 @@
 const Product = require("../../../models/productModel");
 
 exports.createProduct = ((req, res) => {
+    // getting file metadata
+    const file = req.file
+    // setting default filepath as some image
+    let filepath 
+    if(!file){
+        filepath = "https://artists.spotify.com/songwriter/3IMp1zKhmOEmva4eNPGZKf"
+    }else{
+// if file exists then give filename as filepath
+        filepath = req.file.filename
+    }
     try {
         console.log(req.user);
         // return;
@@ -19,6 +29,8 @@ exports.createProduct = ((req, res) => {
             productDescription: userProductDescription,
             productStatus: userProductStatus,
             productStock: userProductStock,
+            // setting image as filename
+            productImage: filepath,
         })
             .then((product) => {
                 res.status(201).json({
