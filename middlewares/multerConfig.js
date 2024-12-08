@@ -17,7 +17,8 @@ const storage = multer.diskStorage({
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
         //   giving null in case of error and 
         // if success then use filename as  user porvidd - date - random number format
-        cb(null, file.fieldname + '-' + uniqueSuffix)
+        const extension = file.mimetype.split('/')[1];
+        cb(null, `${file.fieldname}-${uniqueSuffix}.${extension}`);
     }
 })
 module.exports = {
