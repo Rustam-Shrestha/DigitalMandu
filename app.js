@@ -10,6 +10,11 @@ const { registerUser, loginUser } = require("./controller/auth/authController");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// code for making client access the folder named uploads only by defalt node doesnnot allow us access the folder
+//directly by lcient 
+app.use(express.static("./uploads"))
+
+
 // Include .env to access environment variables
 require('dotenv').config();
 

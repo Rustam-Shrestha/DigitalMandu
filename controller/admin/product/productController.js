@@ -1,4 +1,6 @@
 const Product = require("../../../models/productModel");
+// Include .env to access environment variables
+require('dotenv').config();
 
 exports.createProduct = ((req, res) => {
     // getting file metadata
@@ -9,8 +11,9 @@ exports.createProduct = ((req, res) => {
         filepath = "https://artists.spotify.com/songwriter/3IMp1zKhmOEmva4eNPGZKf"
     }else{
 // if file exists then give filename as filepath
-        filepath = req.file.filename
+        filepath = process.env.DOMAIN+":"+process.env.PORT+"/"+req.file.filename
     }
+    console.log(file)
     try {
         console.log(req.user);
         // return;
