@@ -1,7 +1,8 @@
-const { createProduct, getProducts, getEachProducts, deleteProduct } = require('../controller/admin/product/productController');
+const { createProduct, getProducts, getEachProducts, deleteProduct, updateProduct } = require('../controller/admin/product/productController');
 const isUserAuthenticated = require('../middlewares/isAuthenticated');
 const { storage,multer } = require('../middlewares/multerConfig');
 const restrict = require('../middlewares/restrict');
+const { updateMany } = require('../models/productModel');
 const catchAsync = require('../services/catchAsync');
 // requirint the foncigurations for file handling that we did in the middleware asecitin
 const upload = multer({storage:storage})
@@ -22,7 +23,11 @@ rtr.route('/add_product').post(catchAsync(isUserAuthenticated), catchAsync(restr
 //for all products
 rtr.route('/products').get(catchAsync(getProducts))
 // for each product
-rtr.route('/products/:id').get(catchAsync(getEachProducts)).delete(catchAsync(isUserAuthenticated),restrict("admin"),catchAsync(deleteProduct))
+rtr.route('/products/:id').get(catchAsync(getEachProducts)).delete(catchAsync(isUserAuthenticated),restrict("admin"),catchAsync(upload.single('productImage')),catchAsync(deleteProduct))
+// the upload.single method must be used otherwist the node will nnot handle form data anf file module b\
+// the only reason multer is used 
+.patch(catchAsync(isUserAuthenticated), catchAsync(restrict("admin")), upload.single('productImage'), catchAsync(updateProduct));
+
 // deleting the rpoduct with an id
 // rtr.route('/products/:id').get(catchAsync(getEachProducts))
 

@@ -2,7 +2,6 @@ const express = require("express");
 const { connectDatabase } = require("./database/database");
 const app = express();
 
-
 // requiring the registeruser and login user from auth controller from controller file
 const { registerUser, loginUser } = require("./controller/auth/authController");
 
