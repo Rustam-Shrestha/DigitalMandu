@@ -53,7 +53,18 @@ exports.createProduct = ((req, res) => {
 
 })
 exports.getProducts = async (req, res) => {
-    const products = await Product.find();
+
+    // changed this code first it used to fetch only id
+    // but now as we changed the reviewModel to nextWayReviewModel
+    // we are changing to fetch data and more data nested inside
+    // the nested path as  reviews database selecting name and email of user
+    const products = await Product.find().populate({
+        path:"reviews",
+        populate:{
+            path:"userId",
+            select:"name email"
+        }
+    });
     // if products are nto available give message of no products available
     if (products.length == 0) {
         res.status(400).json({
@@ -102,36 +113,36 @@ exports.getEachProducts = async (req, res) => {
     }
 }
 
-exports.deleteProduct =  async(req,res)=>{
-    const {id} = req.params
-    if(!id){
+exports.deleteProduct = async (req, res) => {
+    const { id } = req.params
+    if (!id) {
         return res.status(400).json({
-            message : "Please provide id"
+            message: "Please provide id"
         })
     }
     // deleting old data while 
     const oldData = await Product.findById(id)
-    if(!oldData){
+    if (!oldData) {
         return res.status(404).json({
-            message : "No data found with that id"
+            message: "No data found with that id"
         })
     }
- 
+
     const oldProductImage = oldData.productImage // http://localhost:3000/1698943267271-bunImage.png"
-    const lengthToCut  = process.env.BACKEND_URL.length
-    const finalFilePathAfterCut = oldProductImage.slice(lengthToCut) 
-         // REMOVE FILE FROM UPLOADS FOLDER
-            fs.unlink("./uploads/" +  finalFilePathAfterCut,(err)=>{
-                if(err){
-                    console.log("error deleting file",err) 
-                }else{
-                    console.log("file deleted successfully")
-                }
-            })
+    const lengthToCut = process.env.BACKEND_URL.length
+    const finalFilePathAfterCut = oldProductImage.slice(lengthToCut)
+    // REMOVE FILE FROM UPLOADS FOLDER
+    fs.unlink("./uploads/" + finalFilePathAfterCut, (err) => {
+        if (err) {
+            console.log("error deleting file", err)
+        } else {
+            console.log("file deleted successfully")
+        }
+    })
     await Product.findByIdAndDelete(id)
     res.status(200).json({
 
-        message : "Product delete successfully"
+        message: "Product delete successfully"
     })
 
 }
@@ -177,8 +188,8 @@ exports.updateProduct = async (req, res) => {
         const imageToEdit = productToEdit.productImage;//http://localhost:3000/abc.png
         const toCut = process.env.BACKEND_URL.length;//
         // giving absolute path bu cuttingthe URL part and only feeding image part
-        const finalFilePathAfterCut = "./uploads/"+imageToEdit.slice(toCut)//abc.png
-        console.log(finalFilePathAfterCut+"=========");
+        const finalFilePathAfterCut = "./uploads/" + imageToEdit.slice(toCut)//abc.png
+        console.log(finalFilePathAfterCut + "=========");
         // if user has added a file wit hfilename request then delete previous image
         if (req.file && req.file.filename) {
             fs.unlink(finalFilePathAfterCut, (err) => {
@@ -199,8 +210,8 @@ exports.updateProduct = async (req, res) => {
             productStock: updatedUserProductStock,
             // setting image as filename if give nfile give path else give old filepath name
             productImage: (req.file && req.file.filename) ? process.env.BACKEND_URL + "" + req.file.filename : imageToEdit
-        },{
-            new:true
+        }, {
+            new: true
         })
         res.status(200).json({
             message: "successfully updated image",

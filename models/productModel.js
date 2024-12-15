@@ -1,4 +1,7 @@
 const mongoose = require('mongoose');
+// having schema so i can nest an schema inside schema which is nexting the reviews inside products
+const { reviewSchema } = require('./nextWayReviewModel');
+// const { userSchema } = require('./nextWayUserModel');
 // Define the product schema with database fields as phone, name, and email
 const productSchema = new mongoose.Schema({
     productName: { type: String, required: [true, "product name is required"] },
@@ -7,6 +10,8 @@ const productSchema = new mongoose.Schema({
     productPrice: { type: Number, required: [true, "product price is required"] },
     productStatus: { type: String, enum: ['draft', 'public'], required: [true, "draft is required"], default: "draft" },
     productImage: { type: String,required: [true, "image is required"], default: "drafthttps://artists.spotify.com/songwriter/3IMp1zKhmOEmva4eNPGZKf" },
+    // this contsins aray of object which later is going to be populated by .push method while creating a reviwe
+    reviews:[reviewSchema]
 },{
     // enabling mongodb to use new data called timespants
     timestamps:true,

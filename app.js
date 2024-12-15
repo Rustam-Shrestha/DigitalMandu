@@ -27,12 +27,14 @@ connectDatabase(process.env.Mongo_URI);
 const auth_routes = require("./routes/authRoute");
 const product_routes = require("./routes/productRoute");
 const admin_user_route = require("./routes/adminUserRoute")
+const user_review_route = require("./routes/userReviewRoute")
 // using the routes we added for the auth routes
 // the "/" denotes that there are no subfolders for the route 
 // we can leave it "" only it will work
 app.use("/api",auth_routes)
 app.use("/api",product_routes)
 app.use("/api",admin_user_route)
+app.use("/api",user_review_route)
 
 // Test API
 app.get("/", (req, res) => {
