@@ -59,6 +59,7 @@ exports.getProducts = async (req, res) => {
     // we are changing to fetch data and more data nested inside
     // the nested path as  reviews database selecting name and email of user
     const products = await Product.find().populate({
+        //populate after getting nto the reviews collection and display name and email of the user from reviews colelections 
         path:"reviews",
         populate:{
             path:"userId",

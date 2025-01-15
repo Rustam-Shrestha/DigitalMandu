@@ -20,7 +20,7 @@ const reviewSchema = new goose.Schema({
 });
 
 // Create model named Review and assign it the schema we created above
-const Review = goose.model('Review', reviewSchema);
+const NextWayReview = goose.model('NextWayReview', reviewSchema);
 
 //exporting the reviewSchema to populate them not populate 
 // but it is like nesting the placeholder inside the another database
@@ -28,7 +28,7 @@ const Review = goose.model('Review', reviewSchema);
 
 // Export the Review model
 module.exports = {
-    Review,
+    NextWayReview,
     // this review schema will be inside product model
     reviewSchema
 }   
