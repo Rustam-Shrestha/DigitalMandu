@@ -1,5 +1,5 @@
-const { registerUser, loginUser, forgotPassword, verifyOTP, resetPassword } = require('../controller/auth/authController');
-const catchAsync = require('../services/catchAsync');
+const { registerUser, loginUser, forgotPassword, verifyOTP, resetPassword } = require('../../controller/auth/authController');
+const catchAsync = require('../../services/catchAsync');
 
 //using express router
 const rtr = require('express').Router();

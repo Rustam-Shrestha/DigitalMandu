@@ -24,10 +24,11 @@ connectDatabase(process.env.Mongo_URI);
 
 
 //importing the authRoute.js in this file to work with routes
-const auth_routes = require("./routes/authRoute");
-const product_routes = require("./routes/productRoute");
-const admin_user_route = require("./routes/adminUserRoute")
-const user_review_route = require("./routes/userReviewRoute")
+const auth_routes = require("./routes/auth/authRoute");
+const product_routes = require("./routes/admin/productRoute");
+const admin_user_route = require("./routes/admin/adminUserRoute")
+const user_review_route = require("./routes/user/userReviewRoute")
+const user_profile_route = require("./routes/user/profileRoute")
 // using the routes we added for the auth routes
 // the "/" denotes that there are no subfolders for the route 
 // we can leave it "" only it will work
@@ -35,6 +36,11 @@ app.use("/api",auth_routes)
 app.use("/api",product_routes)
 app.use("/api",admin_user_route)
 app.use("/api",user_review_route)
+
+// another way of using route either add everything on main route file like top
+//or explicitly mention path here like i did  tin this boottm part mentioning profile route explicitly
+app.use("/api/profile",user_profile_route)
+
 
 // Test API
 app.get("/", (req, res) => {

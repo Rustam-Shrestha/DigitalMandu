@@ -1,113 +1,120 @@
-const Product = require("../../models/productModel");
-const Review = require("../../models/reviewModel");
+//legacy code no need of this code but supporitng factor while creating the projuecgt
 
-// Create a review
-exports.createReview = async (req, res) => {
-    const userId = req.user.id;
-    const { userRating, userMessage } = req.body;
-    const productId = req.params.id;
 
-    if (!userRating || !userMessage || !productId) {
-        return res.status(400).json({
-            message: "Please provide rating, message, and productId",
-        });
-    }
 
-    const productExist = await Product.findById(productId);
-    if (!productExist) {
-        return res.status(404).json({
-            message: "Product with that productId does not exist",
-        });
-    }
 
-    await Review.create({
-        userId,
-        productId,
-        rating: userRating,
-        message: userMessage,
-    });
 
-    res.status(200).json({
-        message: "Review added successfully",
-    });
-};
 
-// Get all reviews for a product
-exports.getProductReview = async (req, res) => {
-    const productId = req.params.id;
+// const Product = require("../../models/productModel");
+// const Review = require("../../models/reviewModel");
 
-    if (!productId) {
-        return res.status(400).json({
-            message: "Please provide productId",
-        });
-    }
+// // Create a review
+// exports.createReview = async (req, res) => {
+//     const userId = req.user.id;
+//     const { userRating, userMessage } = req.body;
+//     const productId = req.params.id;
 
-    const productExist = await Product.findById(productId);
-    if (!productExist) {
-        return res.status(404).json({
-            message: "Product with that id doesn't exist",
-        });
-    }
+//     if (!userRating || !userMessage || !productId) {
+//         return res.status(400).json({
+//             message: "Please provide rating, message, and productId",
+//         });
+//     }
 
-    const reviews = await Review.find({ productId }).populate("userId");
-    res.status(200).json({
-        message: "Reviews fetched successfully",
-        data: reviews,
-    });
-};
+//     const productExist = await Product.findById(productId);
+//     if (!productExist) {
+//         return res.status(404).json({
+//             message: "Product with that productId does not exist",
+//         });
+//     }
 
-// Delete a review
-exports.deleteReview = async (req, res) => {
-    const reviewId = req.params.id;
+//     await Review.create({
+//         userId,
+//         productId,
+//         rating: userRating,
+//         message: userMessage,
+//     });
 
-    if (!reviewId) {
-        return res.status(400).json({
-            message: "Please provide reviewId",
-        });
-    }
+//     res.status(200).json({
+//         message: "Review added successfully",
+//     });
+// };
 
-    const review = await Review.findById(reviewId);
-    if (!review) {
-        return res.status(404).json({
-            message: "Review not found",
-        });
-    }
+// // Get all reviews for a product
+// exports.getProductReview = async (req, res) => {
+//     const productId = req.params.id;
 
-    await Review.findByIdAndDelete(reviewId);
-    res.status(200).json({
-        message: "Review deleted successfully",
-    });
-};
+//     if (!productId) {
+//         return res.status(400).json({
+//             message: "Please provide productId",
+//         });
+//     }
 
-// Add a product review
-exports.addProductReview = async (req, res) => {
-    const productId = req.params.id;
-    const { userRating, userMessage } = req.body;
-    const userId = req.user.id;
+//     const productExist = await Product.findById(productId);
+//     if (!productExist) {
+//         return res.status(404).json({
+//             message: "Product with that id doesn't exist",
+//         });
+//     }
 
-    if (!userRating || !userMessage || !productId) {
-        return res.status(400).json({
-            message: "Please provide rating, message, and productId",
-        });
-    }
+//     const reviews = await Review.find({ productId }).populate("userId");
+//     res.status(200).json({
+//         message: "Reviews fetched successfully",
+//         data: reviews,
+//     });
+// };
 
-    const product = await Product.findById(productId);
-    if (!product) {
-        return res.status(404).json({
-            message: "Product with that id does not exist",
-        });
-    }
+// // Delete a review
+// exports.deleteReview = async (req, res) => {
+//     const reviewId = req.params.id;
 
-    const review = {
-        userId,
-        rating: userRating,
-        message: userMessage,
-    };
+//     if (!reviewId) {
+//         return res.status(400).json({
+//             message: "Please provide reviewId",
+//         });
+//     }
 
-    product.reviews.push(review);
-    await product.save();
+//     const review = await Review.findById(reviewId);
+//     if (!review) {
+//         return res.status(404).json({
+//             message: "Review not found",
+//         });
+//     }
 
-    res.status(200).json({
-        message: "Review added successfully",
-    });
-};
+//     await Review.findByIdAndDelete(reviewId);
+//     res.status(200).json({
+//         message: "Review deleted successfully",
+//     });
+// };
+
+// // Add a product review
+// exports.addProductReview = async (req, res) => {
+//     const productId = req.params.id;
+//     const { userRating, userMessage } = req.body;
+//     const userId = req.user.id;
+
+//     if (!userRating || !userMessage || !productId) {
+//         return res.status(400).json({
+//             message: "Please provide rating, message, and productId",
+//         });
+//     }
+
+//     const product = await Product.findById(productId);
+//     if (!product) {
+//         return res.status(404).json({
+//             message: "Product with that id does not exist",
+//         });
+//     }
+
+//     const review = {
+//         userId,
+//         rating: userRating,
+//         message: userMessage,
+//     };
+
+//     product.reviews.push(review);
+//     await product.save();
+
+//     res.status(200).json({
+//         message: "Review added successfully",
+//     });
+// };

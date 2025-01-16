@@ -52,67 +52,6 @@ exports.createProduct = ((req, res) => {
 
 
 })
-exports.getProducts = async (req, res) => {
-
-    // changed this code first it used to fetch only id
-    // but now as we changed the reviewModel to nextWayReviewModel
-    // we are changing to fetch data and more data nested inside
-    // the nested path as  reviews database selecting name and email of user
-    const products = await Product.find().populate({
-        //populate after getting nto the reviews collection and display name and email of the user from reviews colelections 
-        path:"reviews",
-        populate:{
-            path:"userId",
-            select:"name email"
-        }
-    });
-    // if products are nto available give message of no products available
-    if (products.length == 0) {
-        res.status(400).json({
-            message: "products not found",
-            products: []
-        })
-    } else {
-        res.status(200).json({
-            message: "products fetched successfully",
-            products: products
-        })
-    }
-
-}
-exports.getEachProducts = async (req, res) => {
-    try {
-
-        // taking get request destructureing id from URL 
-        const { id } = req.params;
-        // if products are nto available give message of no products available
-        if (!id) {
-            res.status(404).json({
-                message: `Oops the item you searched is not here`,
-                products: []
-            })
-        } else {
-            const products = await Product.findById({ _id: id });
-            if (products.length == 0) {
-                res.status(400).json({
-                    message: `produ0cts not found for id ${id}`,
-                    products: []
-                })
-            }
-            res.status(200).json({
-                message: "products fetched successfully",
-                products: products
-            })
-        }
-
-    } catch (error) {
-        const { id } = req.params;
-        console.log(error.message)
-        res.status(400).json({
-            message: `product with  id ${id} not found`,
-        })
-    }
-}
 
 exports.deleteProduct = async (req, res) => {
     const { id } = req.params
@@ -147,7 +86,6 @@ exports.deleteProduct = async (req, res) => {
     })
 
 }
-
 
 
 exports.updateProduct = async (req, res) => {

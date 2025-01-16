@@ -1,13 +1,15 @@
-const { createProduct, getProducts, getEachProducts, deleteProduct, updateProduct } = require('../controller/admin/product/productController');
-const isUserAuthenticated = require('../middlewares/isAuthenticated');
-const { storage,multer } = require('../middlewares/multerConfig');
-const restrict = require('../middlewares/restrict');
-const { updateMany } = require('../models/productModel');
-const catchAsync = require('../services/catchAsync');
+const { createProduct, deleteProduct, updateProduct } = require('../../controller/admin/product/productController');
+const isUserAuthenticated = require('../../middlewares/isAuthenticated');
+const { storage,multer } = require('../../middlewares/multerConfig');
+const restrict = require('../../middlewares/restrict');
+const { updateMany } = require('../../models/productModel');
+const catchAsync = require('../../services/catchAsync');
+const {getProducts, getEachProducts} = require('../../controller/global/globalController')
 // requirint the foncigurations for file handling that we did in the middleware asecitin
 const upload = multer({storage:storage})
 //using express router
 const rtr = require('express').Router();
+getProducts
 //authenticatio routes 
 // htting post request on the /register endpoint with the logics
 // rtr.route('/add_product').post(createProduct)

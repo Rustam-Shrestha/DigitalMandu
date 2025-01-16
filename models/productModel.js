@@ -10,8 +10,9 @@ const productSchema = new mongoose.Schema({
     productPrice: { type: Number, required: [true, "product price is required"] },
     productStatus: { type: String, enum: ['draft', 'public'], required: [true, "draft is required"], default: "draft" },
     productImage: { type: String,required: [true, "image is required"], default: "drafthttps://artists.spotify.com/songwriter/3IMp1zKhmOEmva4eNPGZKf" },
+    // we may not use the follwoing code if we are not nesting the review on a product and using separate cvollection for reviews 
     // this contsins aray of object which later is going to be populated by .push method while creating a reviwe
-    reviews:[reviewSchema]
+    // reviews:[reviewSchema]
 },{
     // enabling mongodb to use new data called timespants
     timestamps:true,
