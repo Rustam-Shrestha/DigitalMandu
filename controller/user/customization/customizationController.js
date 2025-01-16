@@ -3,41 +3,43 @@ const hx = require('bcryptjs')
 
 
 //get my profile controller
+
+
 exports.getMyProfile = async (rq, rs) => {
     const userID = rq.user.id;
-    const myProfile = await User.findById({ userId: userID })
+    const myProfile = await User.findById(userID); 
     if (!myProfile) {
-        return rs.status(404).json({ message: "User not found" })
+        return rs.status(404).json({ message: "User not found" });
     }
     return rs.json({
-        messageg: "found the data",
+        message: "Found the data", 
         data: myProfile
-    })
-
-
-}
+    });
+};
 
 
 
 //update my profile controller
 
+
 exports.updateProfile = async (req, res) => {
-    const { userName, userEmail, userPhone } = req.body
+    const { userName, userEmail, userPhone } = req.body;
     const userID = req.user.id;
-    //updating user data by finding the data from id and setting new data
-    const updatedUser = await User.findByIdAndUpdate({ userId: userID }, {
+
+    // Updating user data by finding the data from id and setting new data
+    const updatedUser = await User.findByIdAndUpdate(userID, {
         $set: {
             name: userName,
             email: userEmail,
             phone: userPhone
         }
-        // run validators does is rerun the userModel.js on the given data
-    }, { new: true, runValidators: true })
+    }, { new: true, runValidators: true }); 
     if (!updatedUser) {
-        return res.status(404).json({ message: "User not found" })
+        return res.status(404).json({ message: "User not found" });
     }
-    return res.json({ message: "Profile updated successfully", data: updatedUser })
-}
+    return res.json({ message: "Profile updated successfully", data: updatedUser });
+};
+
 
 // Updating the password of user
 exports.updatePassword = async (req, res) => {
@@ -92,7 +94,7 @@ const expireToken = (req, res) => {
 //delete my profile contorller
 exports.deleteProfile = async (req, res) => {
     const userID = req.user.id;
-    const deletedUser = await User.findByIdAndDelete({ userId: userID })
+    const deletedUser = await User.findByIdAndDelete(userID)
     if (!deletedUser) {
         return res.status(404).json({ message: "User not found" })
     }

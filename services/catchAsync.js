@@ -7,8 +7,11 @@
 module.exports = (fn) => {
     return (req, res, next) => {
         // Ensure fn returns a promise
-        // the parameter function receiveing error will catch error and return error
         Promise.resolve(fn(req, res, next)).catch((err) => {
+            // Check if headers are already sent
+            if (res.headersSent) {
+                return next(err);
+            }
             return res.status(500).json({
                 message: err.message,
                 error: err
