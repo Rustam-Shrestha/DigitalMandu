@@ -10,7 +10,7 @@ rtr.route("/:id").get(isUserAuthenticated,catchAsync(getMyProfile))
 .patch(isUserAuthenticated,catchAsync(updateProfile))
 
 
-rtr.route("/changePassword")
+rtr.route("/changePassword/:id")
 .patch(isUserAuthenticated,catchAsync(updatePassword))
 
 module.exports = rtr;

@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 
 // Define the user schema with database fields as phone, name, and email
 const userSchema = new mongoose.Schema({
-    name: { type: String, required: [true, "name is required"] },
-    phone: { type: String, required: [true, "number is required"] },
-    password: { type: String, required: [true, "password is required"] , unique:true},
-    email: { type: String, required: [true, "email is required"], unique:true, lowercase:true },
+    name: { type: String, required: [true, "name is required"]},
+    phone: { type: String, required: [true, "number is required"]},
+    password: { type: String, required: [true, "password is required"]},
+    email: { type: String, required: [true, "email is required"], unique:true, lowercase:true},
     role: { type: String, enum: ['customer', 'admin'], required: [true, "role is required"], default: "customer"},
     otp: { type: Number},
     isOtpVerified: { type: Boolean, default:false},
