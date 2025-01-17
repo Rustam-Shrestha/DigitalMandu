@@ -29,6 +29,11 @@ const product_routes = require("./routes/admin/productRoute");
 const admin_user_route = require("./routes/admin/adminUserRoute")
 const user_review_route = require("./routes/user/userReviewRoute")
 const user_profile_route = require("./routes/user/profileRoute")
+
+//step:5 create the requirement of the route path here
+const user_cart_route = require("./routes/user/cartRoute")
+
+
 // using the routes we added for the auth routes
 // the "/" denotes that there are no subfolders for the route 
 // we can leave it "" only it will work
@@ -41,6 +46,11 @@ app.use("/api",user_review_route)
 //or explicitly mention path here like i did  tin this boottm part mentioning profile route explicitly
 app.use("/api/profile",user_profile_route)
 
+// step 6: make use of the included route
+//notice how id did /api and did /profile 
+//it is basically same as i worte whole path here for profile
+//and for cart i have written it in their own route file cartRoute 
+app.use("/api",user_cart_route)
 
 // Test API
 app.get("/", (req, res) => {

@@ -9,6 +9,11 @@ const userSchema = new mongoose.Schema({
     role: { type: String, enum: ['customer', 'admin'], required: [true, "role is required"], default: "customer"},
     otp: { type: Number},
     isOtpVerified: { type: Boolean, default:false},
+    // appending the cart functionality with product reference
+    // thsi will borrow instance of product collection withg stock being the number of product we will populate right after user adds product inside their cart 
+    cart: { 
+        type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }], 
+    }
 },{
     // enabling mongodb to use new data called timespants
     timestamps:true,
