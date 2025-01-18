@@ -1,6 +1,6 @@
 // step 3: including the file where the functionality can be found and models
 //if necessary so we can dleegate task to those file 
-const { getOrders, createOrder } = require("../../controller/user/order/orderController")
+const { getOrders, createOrder, updateOrders, deleteOrder, cancelOrder } = require("../../controller/user/order/orderController")
 const isUserAuthenticated = require("../../middlewares/isAuthenticated")
 const catchAsync = require("../../services/catchAsync")
 
@@ -17,6 +17,16 @@ rtr.route("/orders")
     .post(isUserAuthenticated, catchAsync(createOrder))
 
 
+//cancelling order
+rtr.route("/orders/cancel")
+    .patch(isUserAuthenticated, catchAsync(cancelOrder))
+
+//user based updating and deleting of order
+rtr.route("/orders/:id")
+    .patch(isUserAuthenticated, catchAsync(updateOrders))
+    .delete(isUserAuthenticated, catchAsync(deleteOrder))
+
+//user based updating and deleting of order
 
 //strp 2: exportng the router to use by other files
 module.exports = rtr
