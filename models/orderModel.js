@@ -27,6 +27,10 @@ const orderSchema = new Schema({
             default: "pending"
         },
         paymentDetails: {
+            //payment id if paid
+            pidx:{
+                type:String
+            },
             method: {
                 type: String,
                 enum: ['COD', "khalti"]

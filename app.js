@@ -24,13 +24,14 @@ connectDatabase(process.env.Mongo_URI);
 
 
 //importing the authRoute.js in this file to work with routes
-const auth_routes = require("./routes/auth/authRoute");
-const product_routes = require("./routes/admin/productRoute");
 const admin_user_route = require("./routes/admin/adminUserRoute")
+const admin_order_route = require("./routes/admin/adminOrderRoute")
+const product_routes = require("./routes/admin/productRoute");
+const auth_routes = require("./routes/auth/authRoute");
 const user_review_route = require("./routes/user/userReviewRoute")
 const user_profile_route = require("./routes/user/profileRoute")
 const user_order_route = require("./routes/user/orderRoute")
-const admin_order_route = require("./routes/admin/adminOrderRoute")
+const user_payment_route = require("./routes/user/paymentRoute")
 
 //step:5 create the requirement of the route path here
 const user_cart_route = require("./routes/user/cartRoute")
@@ -45,6 +46,7 @@ app.use("/api",admin_user_route)
 app.use("/api",user_review_route)
 app.use("/api",user_order_route)
 app.use("/api",admin_order_route)
+app.use("/api",user_payment_route)
 
 // another way of using route either add everything on main route file like top
 //or explicitly mention path here like i did  tin this boottm part mentioning profile route explicitly
