@@ -23,6 +23,10 @@ require('dotenv').config();
 connectDatabase(process.env.Mongo_URI);
 
 
+const {Server} = require("socket.io")
+
+
+
 //importing the authRoute.js in this file to work with routes
 const admin_user_route = require("./routes/admin/adminUserRoute")
 const admin_order_route = require("./routes/admin/adminOrderRoute")
@@ -66,9 +70,22 @@ app.get("/", (req, res) => {
 });
 
 
-
-const PORT = process.env.PORT;
-// Check server
-app.listen(PORT, () => {
+const PORT = process.env.PORT || 3000; // Default to port 3000 if PORT is not set
+// setting server variable
+const server = app.listen(PORT, () => {
     console.log("Server is running at: http://localhost:" + PORT);
 });
+
+// passing our server address to socket
+const io = new Server(server);
+
+io.on("connection", (socket) => {
+    console.log("connected to a socket");
+    // You can add more event listeners here
+    console.log(server)
+});
+
+const getSocketIo = ()=>{
+    return io
+}
+module.exports.getSocketIo = getSocketIo

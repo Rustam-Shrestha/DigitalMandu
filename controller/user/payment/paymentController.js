@@ -10,35 +10,43 @@ exports.initateKhaltiPayment = async (req, res) => {
     const data = {
         return_url: "http://localhost:3000/api/payment/success",
         purchase_order_id: orderId,
-        amount: amount * 100, // Convert NPR to paisa
+        amount: amount, // Convert NPR to paisa
         website_url: "http://localhost:3000/",
         purchase_order_name: "order_name_" + orderId
     };
 
-    try {
-        const response = await axios.post("https://dev.khalti.com/api/v2/epayment/initiate/", data, {
-            headers: {
-                "Authorization": "key 370da36237d94394a497c6d83e634229",
-                "Content-Type": "application/json"
-            }
-        });
+    const response = await axios.post("https://dev.khalti.com/api/v2/epayment/initiate/", data, {
+        headers: {
+            "Authorization": "key 370da36237d94394a497c6d83e634229",
+            "Content-Type": "application/json"
+        }
+    });
 
-        console.log("response", response.data);
-        let  order = Order.findById(orderId)
-        order.paymentDetails.pidx = response.data.pidx
-        await order.save()
-        // this will redirect to the pyayment page with or merchant accout to accept payment and 
-        //filled with all the credentials also giving transactionID too
-        res.redirect(response.data.payment_url);
-    } catch (error) {
-        console.error("Error initiating payment:", error.response ? error.response.data : error.message);
-        res.status(400).json({ message: "Failed to initiate payment", error: error.response ? error.response.data : error.message });
+    console.log("response", response.data);
+    let order = await Order.findById(orderId);
+    if (!order) {
+        return res.status(404).json({ message: "Order not found." });
     }
+
+    //ensuring the order is an object before adding value in pidx
+    if (!order.paymentDetails) {
+        order.paymentDetails = {};
+    }
+
+    order.paymentDetails.pidx = response.data.pidx;
+    await order.save();
+    // this will redirect to the pyayment page with or merchant accout to accept payment and 
+    //filled with all the credentials also giving transactionID too
+    res.redirect(response.data.payment_url);
+
+
 };
 
 // verifying transaction id pids
 //verifying payment is done or not 
 exports.verifyPidx = async (req, res) => {
+    const app = require("../../../app")
+    const io = app.getSocketIo;
     //pidx comes from qyery not params as it is followed as ?pidx=xxx
     const pidx = req.query.pidx;
     if (!pidx) {
@@ -59,15 +67,33 @@ exports.verifyPidx = async (req, res) => {
     res.send(response.data)
     if (response.data.status == "Completed") {
         //modify database   
-        let order =await Order.find({"paymentDetails.pidx":pidx})
+        let order = await Order.find({ "paymentDetails.pidx": pidx })
         console.log(order)
         order[0].paymentDetails.metnod = "khalti"
         order[0].paymentDetails.status = "paid"
         await order.save()
         //notify the user that payment is done
-        res.redirect("http://localhost:3000")
+        // res.redirect("http://localhost:3000")
+
+        //get socket id of requesting usere
+        io.on("connection", () => {
+            io.to(socket.id).emit("payment", { message: "payment successful", order })
+        })
+
+
+        //using socket for notifying 
+        io.emit("payment", { message: "payment successful", order })
     } else {
         //notify the user that payment is not done
-        res.redirect("http://localhost:3000/failurePage")
+        io.on("connection", () => {
+            io.to(socket.id).emit("payment", { message: "payment failure", order })
+        })
+
+
+        //using socket for notifying 
+        // io.emit("payment", { message: "payment failure", order })
+        // io.emit("payment_failure", { message: "payment failure" })
+        // res.redirect("http://localhost:3000/failurePage")
     }
 }
+
