@@ -24,7 +24,8 @@ connectDatabase(process.env.Mongo_URI);
 
 
 const {Server} = require("socket.io")
-
+//requirieng cors for fixing cors related error
+const cors = require("cors")
 
 
 //importing the authRoute.js in this file to work with routes
@@ -40,6 +41,9 @@ const user_payment_route = require("./routes/user/paymentRoute")
 //step:5 create the requirement of the route path here
 const user_cart_route = require("./routes/user/cartRoute")
 
+app.use(cors({
+    origin:'*'
+}))
 
 // using the routes we added for the auth routes
 // the "/" denotes that there are no subfolders for the route 

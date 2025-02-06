@@ -1,7 +1,7 @@
     // step 3: including the file where the functionality can be found and models
     //if necessary so we can dleegate task to those file 
 
-    const { addToCart, getCartItems, removeCartItem } = require("../../controller/user/cart/cartController")
+    const { addToCart, getCartItems, removeCartItem, updateCartItem } = require("../../controller/user/cart/cartController")
     const isUserAuthenticated = require("../../middlewares/isAuthenticated")
     const catchAsync = require("../../services/catchAsync")
 
@@ -19,6 +19,7 @@
 
     rtr.route("/cart/:cartID")
     .delete(isUserAuthenticated, catchAsync(removeCartItem))
+    .patch(isUserAuthenticated, catchAsync(updateCartItem))
 
     //strp 2: exportng the router to use by other files
     module.exports = rtr

@@ -11,9 +11,10 @@ const userSchema = new mongoose.Schema({
     isOtpVerified: { type: Boolean, default:false},
     // appending the cart functionality with product reference
     // thsi will borrow instance of product collection withg stock being the number of product we will populate right after user adds product inside their cart 
-    cart: { 
-        type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }], 
-    }
+    cart: [{ 
+        quantity: { type: Number,required:true},
+        product: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }], 
+    }]
 },{
     // enabling mongodb to use new data called timespants
     timestamps:true,

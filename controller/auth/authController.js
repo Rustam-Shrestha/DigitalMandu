@@ -33,7 +33,7 @@ exports.registerUser = async (req, res) => {
             }
 
             // Create a new user
-            await User.create({
+            const data = await User.create({
                 email: userEmail,
                 name: userName,
                 phone: userPhone,
@@ -46,7 +46,8 @@ exports.registerUser = async (req, res) => {
 
             // Send success message
             res.status(201).json({
-                message: "User created successfully"
+                message: "User created successfully",
+                data:data
             });
         } catch (error) {
             // Handle errors
@@ -90,11 +91,12 @@ exports.loginUser = async (req, res) => {
                 const token = webtoken.sign(
                     { id: user._id.toString() },
                     process.env.SECRET_KEY,
-                    { expiresIn: '8d', algorithm: 'HS256' } // HS256 is default, but specifying it is safer
+                    { expiresIn: '30d', algorithm: 'HS256' } // HS256 is default, but specifying it is safer
                 );
                 console.log("after sign")
                 res.status(200).json({
                     message: "Login successful",
+                    data:user,
                     token: token
                 });
             } else {

@@ -1,4 +1,4 @@
-const { getReviewsByAUser, getProductReview, getReviewsByProductAndUser, createReview, deleteReview } = require('../../controller/user/review/reviewController');
+const { getReviewsByAUser, getProductReview, getReviewsByProductAndUser, createReview, deleteReview, addProductReview } = require('../../controller/user/review/reviewController');
 // const { createReview, getProductReview, deleteReview, addProductReview } = require('../controller/user/userController');
 const isUserAuthenticated = require('../../middlewares/isAuthenticated');
 const restrict = require('../../middlewares/restrict');
@@ -22,7 +22,7 @@ rtr.route('/reviews/:id')
     .get(catchAsync(getProductReview))
     //letting only user to create and delete review
     .delete(isUserAuthenticated,restrict("customer"), catchAsync(deleteReview))
-    .post(isUserAuthenticated,restrict("customer"), catchAsync(createReview));
+    .post(isUserAuthenticated,restrict("customer"), catchAsync(addProductReview));
 
     //use following if using method 2
     // .post(isUserAuthenticated, catchAsync(addProductReview));

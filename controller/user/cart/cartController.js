@@ -18,122 +18,116 @@ exports.addToCart = async (req, res) => {
             return res.status(404).json({ msg: "User not found" });
         }
 
-        // Add product to cart
-        user.cart.push(productID);
-        await user.save();
+        // Finding specific product in the cart 
+        const existingCartItem = user.cart.find((x) => x.product.toString() === productID);
+        // If product already exists in cart, increase quantity
+        if (existingCartItem) {
+            existingCartItem.quantity+=1;
+        } else {
+            // Else create new instance of the product
+            user.cart.push({
+                quantity: 1,
+                product: productID
+            });
+        }
 
-        res.status(200).json({ message: "Product added to cart" });
+        await user.save();
+        const updatedUser = await User.findById(userID).populate("cart.product");
+        res.status(200).json({ message: "Product added to cart", data: updatedUser.cart });
     } catch (error) {
         res.status(500).json({ msg: "Server error", error: error.message });
     }
 };
 
-//getting my cart items
+// Getting my cart items
 exports.getCartItems = async (req, res) => {
     try {
         const userID = req.user.id;
-        // get specific user
-        const user = await User.findById(userID);
+        // Get specific user
+        const user = await User.findById(userID).populate({
+            path: "cart.product",
+            select: "-productStatus" // Select all fields except productStatus
+        });
+
         if (!user) {
             return res.status(404).json({ msg: "User not found" });
         }
 
-        //this code will display user and nested cart having id will be populated
-        //as schema is already defined with product name 
-        //it will refer to product collection and join the product basically gives
-        //all details of product respect to id
-        const cartData = await user.populate({
-            path: "cart",
-            // sleective election deducting only product  status hence status is not shown 
-            select: "-productStatus"
-        })
         res.status(200).json({
-            message: "fetched carted items",
-            //this is whole nestd data to limit data we only take nested part alled cart
-            data: cartData.cart
-        })
-
-        //another way
-        // inside that user there is nested cart use that cart that has id
-        //then use that id to find the actual product 
-        // const cartItems = await Product.find({ _id: { $in: user.cart } });
-        // res.status(200).json(cartItems);
-
-
+            message: "Fetched cart items",
+            data: user.cart
+        });
     } catch (error) {
         res.status(500).json({ msg: "Server error", error: error.message });
     }
-}
+};
 
-
-
-
-// edit the cart functionality
-
-
-
-//removing element from cart
+// Removing element from cart
 exports.removeCartItem = async (req, res) => {
     try {
         // Retrieve user ID from token
         const userID = req.user.id;
-        // Get cart ID from URL parameter
-        const cartID = req.params.cartID;
+        // Get product ID from URL parameter
+        const productID = req.params.productID;
         // Get specific user
         const user = await User.findById(userID);
-        const product = await Product.findById(cartID);
         
-        if (!cartID) {
-            return res.status(404).json({ msg: "Cart not found" });
-        }
         if (!user) {
-            return res.status(404).json({ msg: "User not found" });
-        }
-        if (!product) {
-            return res.status(404).json({ msg: "Product not found" });
+            return res.status(200).json({ msg: "User not found, but no error" });
         }
         
-        // remove product from cart
-        //bsically filter loops inside the cart x being iteration
-        //only selects item thatis not cartid
-        //basically id is in object form we check it with the cart id string by conveting it to stirng
-        // should not use parenthesis in nested function of filter
-        //ot it will create error and deletye all the items
-        user.cart = user.cart.filter((x) => x.toString() !== cartID);
+        // Check if the product exists in cart
+        const cartItemIndex = user.cart.findIndex((x) => x.product.toString() === productID);
+        if (cartItemIndex === -1) {
+            return res.status(200).json({ msg: "Product not found in cart, but no error" });
+        }
+        
+        // Remove the item from cart
+        user.cart.splice(cartItemIndex, 1);
         await user.save();
         
         res.status(200).json({
             message: "Removed an item from cart"
         });
-
     } catch (error) {
         res.status(500).json({ msg: "Server error", error: error.message });
     }
 };
 
+exports.updateCartItem = async (req, res) => {
+    try {
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ msg: "Unauthorized: User ID is missing" });
+        }
 
+        const userID = req.user.id;
+        const cartID = req.params.cartID;  // Ensure it's "cartID" (not productID)
+        const { quantity } = req.body;
 
-// exports.removeCartItem = async (req, res) => {
-//     try {
-//         // retrive user id from token
-//         const userID = req.user.id;
-//         // get cart id from url parameter
-//         const cartID = req.params.id;
-//         // get specific user
-//         const user = await User.findById(userID);
-//         if (!user) {
-//             return res.status(404).json({ msg: "User not found" });
-//         }
-//         // find the cart item and delete it
-//         const cartItem = await Cart.findByIdAndDelete(cartID);
-//         if (!cartItem) {
-//             return res.status(404).json({ msg: "Cart item not found" });
-//         }
-//         // update the user's cart
-//         user.cart = user.cart.filter((item) => item.toString() !== cartID);
-//         await user.save();
-//         res.status(200).json({ msg: "Cart item removed" });
-//     } catch (error) {
-//         res.status(500).json({ msg: "Server error", error: error.message });
-//     }
-// }
+        if (!quantity || quantity <= 0) {
+            return res.status(400).json({ msg: "Invalid quantity" });
+        }
+
+        const user = await User.findById(userID);
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" });
+        }
+
+        const cartItem = user.cart.find((item) => String(item._id) === cartID);
+        if (!cartItem) {
+            return res.status(404).json({ msg: "Product not found in cart" });
+        }
+
+        cartItem.quantity = quantity;
+        await user.save();
+
+        return res.status(200).json({
+            message: "Updated cart item quantity",
+            updatedCart: user.cart
+        });
+
+    } catch (error) {
+        console.error("Error updating cart item:", error.message);
+        return res.status(500).json({ msg: "Server error", error: error.message });
+    }
+};
