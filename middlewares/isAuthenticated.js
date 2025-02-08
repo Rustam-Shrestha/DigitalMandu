@@ -1,13 +1,14 @@
-const webtoken = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
 const User = require("../models/userModel");
 
 // Promisify the verify function
-const verifyToken = promisify(webtoken.verify);
+const verifyToken = promisify(jwt.verify);
 
 const isUserAuthenticated = async (req, res, next) => {
     // Retrieve token from the header named user_auth_token
     const userToken = req.headers.user_auth_token;
+    console.log("User Token:", userToken);
 
     // If token is not provided, return an error
     if (!userToken) {
@@ -17,6 +18,7 @@ const isUserAuthenticated = async (req, res, next) => {
     try {
         // Verify the token
         const decodedToken = await verifyToken(userToken, process.env.SECRET_KEY);
+        console.log("Decoded Token:", decodedToken);
 
         // Check if the token is valid
         if (!decodedToken) {
@@ -25,6 +27,7 @@ const isUserAuthenticated = async (req, res, next) => {
 
         // Find the user by the decoded token's id
         const authorizedUser = await User.findOne({ _id: decodedToken.id });
+        console.log("Authorized User:", authorizedUser);
 
         // If user is not found, return an error
         if (!authorizedUser) {

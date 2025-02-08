@@ -8,8 +8,8 @@ rtr.route("/payment")
     .post(isUserAuthenticated, catchAsync(initateKhaltiPayment))
 
 //
-rtr.route("/payment/success")
-    .get(isUserAuthenticated, catchAsync(verifyPidx))
+rtr.route("/payment/verifyPidx")
+    .post(isUserAuthenticated, catchAsync(verifyPidx))
 
 module.exports = rtr
 

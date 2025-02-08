@@ -1,4 +1,5 @@
 const Order = require("../../../models/orderModel");
+const User = require("../../../models/userModel");
 
 // Create a new order
 exports.createOrder = async (req, res) => {
@@ -24,10 +25,16 @@ exports.createOrder = async (req, res) => {
             paymentDetails,
         });
 
+        const user = await User.findById(userId)
+        user.cart=[]
+        await user.save()
+        
+
         return res.status(200).json({
             message: "Order created successfully",
             data: order, // Return the created order data
         });
+        window.location.href="/"
     } catch (error) {
         console.log(error);
         res.status(500).json({ msg: "Server error", error: error.message });

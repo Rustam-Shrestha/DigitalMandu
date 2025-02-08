@@ -7,8 +7,17 @@ exports.initateKhaltiPayment = async (req, res) => {
         return res.status(400).json({ message: "Order id and amount are required." });
     }
 
+    let order = await Order.findById(orderId);
+    if (!order) {
+        return res.status(404).json({ message: "Order not found." });
+    }
+    //check whether coming order is total amount of order
+    if (order.totalAmount !== amount) {
+        return res.status(400).json({ message: "Invalid amount." });
+    }
+
     const data = {
-        return_url: "http://localhost:3000/api/payment/success",
+        return_url: "http://localhost:5173/success",
         purchase_order_id: orderId,
         amount: amount, // Convert NPR to paisa
         website_url: "http://localhost:3000/",
@@ -23,10 +32,7 @@ exports.initateKhaltiPayment = async (req, res) => {
     });
 
     console.log("response", response.data);
-    let order = await Order.findById(orderId);
-    if (!order) {
-        return res.status(404).json({ message: "Order not found." });
-    }
+
 
     //ensuring the order is an object before adding value in pidx
     if (!order.paymentDetails) {
@@ -37,7 +43,13 @@ exports.initateKhaltiPayment = async (req, res) => {
     await order.save();
     // this will redirect to the pyayment page with or merchant accout to accept payment and 
     //filled with all the credentials also giving transactionID too
-    res.redirect(response.data.payment_url);
+    // res.redirect(response.data.payment_url);
+    res.status(200).json(
+        {
+            message: "paymeht has been successful",
+            paymentUrl: response.data.payment_url
+        }
+    )
 
 
 };
@@ -48,7 +60,10 @@ exports.verifyPidx = async (req, res) => {
     const app = require("../../../app")
     const io = app.getSocketIo;
     //pidx comes from qyery not params as it is followed as ?pidx=xxx
-    const pidx = req.query.pidx;
+    // const pidx = req.query.pidx;
+    const pidx = req.body.pidx;
+    const userId = req.user.id
+
     if (!pidx) {
         return res.status(400).json({ message: "Pidx is required." });
     }
@@ -71,23 +86,43 @@ exports.verifyPidx = async (req, res) => {
         console.log(order)
         order[0].paymentDetails.metnod = "khalti"
         order[0].paymentDetails.status = "paid"
-        await order.save()
+        await order[0].save()
+        //emptying user cart
+        let user = User.findById(userId)
+        //if user is not present then throw err
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+        user.cart = []
+        await user.save()
+        res.status(200).json({
+            message: "payment verified successfully "
+        })
+
+        //non socket approach
+
+
+
+
+
         //notify the user that payment is done
         // res.redirect("http://localhost:3000")
 
         //get socket id of requesting usere
-        io.on("connection", () => {
-            io.to(socket.id).emit("payment", { message: "payment successful", order })
-        })
+        // io.on("connection", () => {
+        //     io.to(socket.id).emit("payment", { message: "payment successful", order })
+        // })
 
 
         //using socket for notifying 
-        io.emit("payment", { message: "payment successful", order })
+        // io.emit("payment", { message: "payment successful", order })
     } else {
         //notify the user that payment is not done
-        io.on("connection", () => {
-            io.to(socket.id).emit("payment", { message: "payment failure", order })
-        })
+        // io.on("connection", () => {
+        io.to(socket.id).emit("payment", { message: "payment failure", order })
+        // })
+        //using socket for notifying
+
 
 
         //using socket for notifying 
