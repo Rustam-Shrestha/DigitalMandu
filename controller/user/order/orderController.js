@@ -2,27 +2,36 @@ const Order = require("../../../models/orderModel");
 
 // Create a new order
 exports.createOrder = async (req, res) => {
-    const userId = req.user.id;
+    try {
+        const userId = req.user.id;
 
-    // Single level non-nested type
-    // Payment details contain type and lstastus    , but the schema already supports this
-    const { shippingAddress, items, totalAmount, paymentDetails } = req.body;
+        const { shippingAddress, items, totalAmount, paymentDetails } = req.body;
 
-    // Check if required fields are provided
-    if (!shippingAddress || items < 1 || !totalAmount || !paymentDetails) {
-        return res.status(400).json({ message: "Please fill all the fields." });
+        // Check if required fields are provided
+        if (!shippingAddress || !items || items.length < 1 || !totalAmount || !paymentDetails) {
+            return res.status(400).json({ message: "Please fill all the fields." });
+        }
+        if (!Array.isArray(items) || items.length === 0 || items.some(i => !i.product)) {
+            return res.status(400).json({ message: "Invalid items data. Each item must have a product ID." });
+        }
+
+        // Populate the orders collection
+        const order = await Order.create({
+            user: userId,
+            shippingAddress,
+            items,
+            totalAmount,
+            paymentDetails,
+        });
+
+        return res.status(200).json({
+            message: "Order created successfully",
+            data: order, // Return the created order data
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: "Server error", error: error.message });
     }
-
-    // Populate the orders collection
-    await Order.create({
-        user: userId,
-        shippingAddress,
-        items,
-        totalAmount,
-        paymentDetails,
-    });
-
-    return res.status(200).json({ message: "Order created successfully" });
 };
 
 // Get orders for the logged-in user
@@ -75,7 +84,7 @@ exports.updateOrders = async (req, res) => {
         return res.status(400).json({ message: "Order is already on the way" });
     }
 
-    // Update the existing order
+    // Update the existing order    
     const updatedOrder = await Order.findByIdAndUpdate(
         id,
         { shippingAddress: newShippingAddress, items: items },

@@ -83,7 +83,7 @@ exports.removeCartItem = async (req, res) => {
         }
         
         // Remove the item from cart
-        user.cart.splice(cartItemIndex, 1);
+        user.cart = user.cart.filter((x) => x.product.toString() !== productID);
         await user.save();
         
         res.status(200).json({
