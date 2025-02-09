@@ -98,7 +98,6 @@ exports.verifyPidx = async (req, res) => {
         res.status(200).json({
             message: "payment verified successfully "
         })
-
         //non socket approach
 
 

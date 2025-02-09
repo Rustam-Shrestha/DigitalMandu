@@ -12,20 +12,24 @@ const sendEmail = require('../../services/sendEmail');
 
 
 exports.registerUser = async (req, res) => {
+    // Log received request body
+    console.log("Received registration data:", req.body);
+    
     // Destructure the JSON form data
     const { userEmail, userName, userPhone, userPassword } = req.body;
 
     // Check for empty fields
     if (!userEmail || !userPhone || !userName || !userPassword) {
-        // Bad request
+        console.log("Missing required fields");
         return res.status(400).json({
             message: "User creation failed"
         });
     } else {
         try {
             // Check if a user with the same email already exists
-            // select * from table limit 1 type code in mongodb
             const existingUser = await User.findOne({ email: userEmail });
+            console.log("Existing user check result:", existingUser);
+            
             if (existingUser) {
                 return res.status(400).json({
                     message: "User with given email already exists"
@@ -37,77 +41,75 @@ exports.registerUser = async (req, res) => {
                 email: userEmail,
                 name: userName,
                 phone: userPhone,
-                // Hash the password before saving
-                // givingthe plain password to the hash funciton to have hashed value  of the plain text
-                // hask sync function takes the plain password and salt as cost of hashing 
-                // computer with high GPU can only handle high salt values so be choosy here so 10-12 is ideal
-                password: hx.hashSync(userPassword, 10)
+                password: hx.hashSync(userPassword, 10) // Hash password
             });
+
+            console.log("User created successfully:", data);
 
             // Send success message
             res.status(201).json({
                 message: "User created successfully",
-                data:data
+                data: data
             });
         } catch (error) {
-            // Handle errors
+            console.error("Error creating user:", error);
             res.status(500).json({
                 message: "Error creating user",
                 error: error.message
             });
         }
     }
-}
+};
 
 exports.loginUser = async (req, res) => {
-    // destructuring the user given email and password
+    // Log received request body
+    console.log("Received login data:", req.body);
+    
+    // Destructure the user email and password
     const { userEmail, userPassword } = req.body;
 
-    // knocking out the user with no fillyp before loading to the server
     if (!userEmail || !userPassword) {
-        // throw message of enter the details to login
+        console.log("Missing login credentials");
         return res.status(400).json({
             message: "Please enter your email and password to login"
         });
     }
 
     try {
-        // finding the user with the given email
-        // its callback takes two parameters error while finding 
-        // number of users found with its detail
+        // Find the user with the given email
         const user = await User.findOne({ email: userEmail });
+        console.log("User lookup result:", user);
 
-        // in case of no user found report it out
         if (!user) {
-            res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ message: "User not found" });
         } else {
-            // hashing the password given by user
-            const hashedPassword = user.password;
-            // comparing the hashed password with the password given by user
-            const isValidPassword = hx.compareSync(userPassword, hashedPassword);
+            // Compare given password with stored hashed password
+            const isValidPassword = hx.compareSync(userPassword, user.password);
+            console.log("Password validation result:", isValidPassword);
+
             if (isValidPassword) {
-                // console.log(user._id.toString())
-                // console.log(process.env.SECRET_KEY+"is secret");
                 const token = webtoken.sign(
                     { id: user._id.toString() },
                     process.env.SECRET_KEY,
-                    { expiresIn: '30d', algorithm: 'HS256' } // HS256 is default, but specifying it is safer
+                    { expiresIn: '30d', algorithm: 'HS256' }
                 );
-                console.log("after sign")
+                console.log("Generated token:", token);
+
                 res.status(200).json({
                     message: "Login successful",
-                    data:user,
+                    data: user,
                     token: token
                 });
             } else {
+                console.log("Invalid password");
                 res.status(401).json({ message: "Invalid password" });
             }
         }
     } catch (err) {
-        // in case of error report it without crash
+        console.error("Error in database:", err);
         res.status(500).json({ message: "Error in database" });
     }
-}
+};
 
 
 
